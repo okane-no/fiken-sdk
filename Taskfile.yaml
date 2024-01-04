@@ -10,10 +10,11 @@ tasks:
   generate:
     cmds:
       - rm -rf src/*
+      - rm -rf doc/*
 
       - |
         npx @openapitools/openapi-generator-cli generate \
-          --generator-name typescript \
+          --generator-name typescript-node \
           --input-spec spec/Fiken-API-2.0.0-modified.yaml \
           --output src \
           --config openapi-generator-cli.config.yaml \
@@ -21,4 +22,3 @@ tasks:
 
       - mv ./src/package.json package.json
       - mv ./src/tsconfig.json tsconfig.json
-      - mv ./src/*.md ./doc
