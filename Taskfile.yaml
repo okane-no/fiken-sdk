@@ -9,6 +9,8 @@ tasks:
          -o template
   generate:
     cmds:
+      - rm -rf src/*
+
       - |
         npx @openapitools/openapi-generator-cli generate \
           --generator-name typescript \
