@@ -21,3 +21,4 @@ tasks:
 
       - mv ./src/package.json package.json
       - mv ./src/tsconfig.json tsconfig.json
+      - mv ./src/*.md ./doc
