@@ -1,24 +1,6 @@
 version: "3"
 
 tasks:
-  template:
-    cmds:
-      - |
-        npx @openapitools/openapi-generator-cli author template \
-         -g typescript-node \
-         -o template
   generate:
     cmds:
-      - rm -rf src/*
-      - rm -rf doc/*
-
-      - |
-        npx @openapitools/openapi-generator-cli generate \
-          --generator-name typescript-node \
-          --input-spec spec/Fiken-API-2.0.0-modified.yaml \
-          --output src \
-          --config openapi-generator-cli.config.yaml \
-          --template-dir template \
-
-      - mv ./src/package.json package.json
-      - mv ./src/tsconfig.json tsconfig.json
+      - npx openapi --input ./spec/Fiken-API-2.0.0-modified.yaml --output ./generated
