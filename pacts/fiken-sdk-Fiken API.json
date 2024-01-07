@@ -1,0 +1,71 @@
+{
+  "consumer": {
+    "name": "fiken-sdk"
+  },
+  "interactions": [
+    {
+      "description": "a request for all account balances",
+      "providerStates": [
+        {
+          "name": "I have a list of account balances"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": "application/json"
+        },
+        "method": "GET",
+        "path": "/companies/acme/accountBalances",
+        "query": {
+          "date": [
+            "2024-01-01"
+          ],
+          "pageSize": [
+            "25"
+          ]
+        }
+      },
+      "response": {
+        "body": [
+          {
+            "balance": 15200,
+            "code": "1500:10029",
+            "name": "John Lewis"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "12.1.1"
+    },
+    "pactRust": {
+      "ffi": "0.4.9",
+      "models": "1.1.11"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "Fiken API"
+  }
+}

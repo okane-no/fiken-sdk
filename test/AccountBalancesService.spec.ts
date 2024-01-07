@@ -1,81 +1,83 @@
 import { beforeAll, describe, expect, it } from 'vitest'
-import { AccountBalancesService, OpenAPI } from '../src/index'
+import { accountBalance, AccountBalancesService, OpenAPI } from '../src/index'
+import { PactV3, MatchersV3 } from '@pact-foundation/pact'
 import 'dotenv/config'
+import path from 'path';
 
 describe('Account Balances Service', () => {
-    let companySlug = 'test'
-    let accountCode = ''
-    let date = ''
 
-    beforeAll(async () => {
-        OpenAPI.TOKEN = process.env.ACCESS_TOKEN!
-    })
+    let companySlug = "acme"
+    let date = "2024-01-01"
 
-    // Account balances
+    const provider = new PactV3({
+        dir: path.resolve(process.cwd(), 'pacts'),
+        consumer: 'fiken-sdk',
+        provider: 'Fiken API',
+    });
 
-    it('Should be able to get account balances', async () => {
-        await expect(async () => await AccountBalancesService.getAccountBalances(companySlug, accountCode)).rejects.not.toThrowError()
-    })
+    const accountBalanceExample: accountBalance = {
+        "code": "1500:10029",
+        "name": "John Lewis",
+        "balance": 15200
+    };
 
-    it('Account balances name should not be undefined or empty', async () => {
-        const response = await AccountBalancesService.getAccountBalances(companySlug, accountCode)
-        if (response.length === 0) {
-            console.warn('Response contains no account balances')
-            return
-        }
 
-        response.forEach(response => {
-            expect(response.name).not.toBeUndefined()
-            expect(response.name?.length).toBeGreaterThan(0)
+    it('retrieves account balances', async () => {
+        // Arrange
+        const EXPECTED_BODY = MatchersV3.eachLike(accountBalanceExample);
+
+        provider
+            .given('I have a list of account balances')
+            .uponReceiving('a request for all account balances')
+            .withRequest({
+                method: 'GET',
+                path: `/companies/${companySlug}/accountBalances`,
+                query: { date: date, pageSize: '25' },
+                headers: { Accept: 'application/json' }
+            })
+            .willRespondWith({
+                status: 200,
+                contentType: 'application/json',
+                body: EXPECTED_BODY
+            })
+
+        return provider.executeTest(async (mockserver) => {
+            // Act
+            OpenAPI.BASE = mockserver.url
+            const accountBalances = await AccountBalancesService.getAccountBalances(companySlug, date)
+
+            // Assert
+            expect(accountBalances[0]).to.deep.eq(accountBalanceExample)
         })
     })
 
-    it('Account balances code should not be undefined or empty', async () => {
-        const response = await AccountBalancesService.getAccountBalances(companySlug, accountCode)
-        if (response.length === 0) {
-            console.warn('Response contains no account balances')
-            return
-        }
+    it('retrieves account balance', async () => {
+        // Arrange
+        let accountCode = "1"
 
-        response.forEach(response => {
-            expect(response.code).not.toBeUndefined()
-            expect(response.code?.length).toBeGreaterThan(0)
+        const EXPECTED_BODY = MatchersV3.like({ ...accountBalanceExample, ...{ accountCode: 1 } });
+
+        provider
+            .given('I have a list of account balances')
+            .uponReceiving('a request for a specific account balance')
+            .withRequest({
+                method: 'GET',
+                path: `/companies/${companySlug}/accountBalances/${accountCode}`,
+                query: { date: date },
+                headers: { Accept: 'application/json' }
+            })
+            .willRespondWith({
+                status: 200,
+                contentType: 'application/json',
+                body: EXPECTED_BODY
+            })
+
+        return provider.executeTest(async (mockserver) => {
+            // Act
+            const accountBalance: accountBalance = await AccountBalancesService.getAccountBalance(companySlug, accountCode, date)
+
+            // Assert
+            expect(accountBalance).to.deep.eq(accountBalanceExample)
         })
-    })
-
-    it('Account balances should not be undefined or empty', async () => {
-        const response = await AccountBalancesService.getAccountBalances(companySlug, accountCode)
-        if (response.length === 0) {
-            console.warn('Response contains no account balances')
-            return
-        }
-
-        response.forEach(response => {
-            expect(response.balance).not.toBeUndefined()
-        })
-    })
-
-    // Account Balance
-
-    it('Should be able to get account balance', async () => {
-        await expect(async () => await AccountBalancesService.getAccountBalance(companySlug, accountCode, date)).rejects.not.toThrowError()
-    })
-
-    it('Account balance name should not be undefined or empty', async () => {
-        const response = await AccountBalancesService.getAccountBalance(companySlug, accountCode, date)
-        expect(response.name).not.toBeUndefined()
-        expect(response.name?.length).toBeGreaterThan(0)
-    })
-
-    it('Account balance code should not be undefined or empty', async () => {
-        const response = await AccountBalancesService.getAccountBalance(companySlug, accountCode, date)
-        expect(response.code).not.toBeUndefined()
-        expect(response.code?.length).toBeGreaterThan(0)
-    })
-
-    it('Account balance should not be undefined or empty', async () => {
-        const response = await AccountBalancesService.getAccountBalance(companySlug, accountCode, date)
-        expect(response.balance).not.toBeUndefined()
     })
 })
-
