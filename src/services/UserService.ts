@@ -5,18 +5,19 @@
 import type { userinfo } from '../models/userinfo';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
-import { request as __request } from '../core/request';
+import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 
 export class UserService {
+
+    constructor(public readonly httpRequest: BaseHttpRequest) {}
 
     /**
      * Returns information about the user
      * @returns userinfo OK
      * @throws ApiError
      */
-    public static getUser(): CancelablePromise<userinfo> {
-        return __request(OpenAPI, {
+    public getUser(): CancelablePromise<userinfo> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/user',
         });

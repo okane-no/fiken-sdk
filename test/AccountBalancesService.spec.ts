@@ -1,23 +1,25 @@
 import { assertType, beforeAll, describe, it } from 'vitest'
-import { accountBalance, AccountBalancesService, OpenAPI } from '../src/index'
+import { accountBalance, FikenClient } from '../src/index'
 import 'dotenv/config'
 
 describe('Account Balances Service', () => {
 
     let companySlug: string
     let date: string
+    let client: FikenClient
 
     beforeAll(async () => {
-        OpenAPI.TOKEN = process.env.ACCESS_TOKEN
         companySlug = process.env.COMPANY_SLUG!
         date = "2024-01-01"
+
+        client = new FikenClient({TOKEN: process.env.ACCESS_TOKEN})
     })
 
     it('Retrieves the bookkeeping accounts and closing balances for a given date', async () => {
         // Arrange
 
         // Act
-        const response = await AccountBalancesService.getAccountBalances(companySlug, date)
+        const response = await client.accountBalances.getAccountBalances({companySlug, date})
 
         // Assert
         response.forEach(accountBalance => {
@@ -30,7 +32,7 @@ describe('Account Balances Service', () => {
         let accountCode = process.env.ACCOUNT_CODE!
 
         // Act
-        const response = await AccountBalancesService.getAccountBalance(companySlug, accountCode, date)
+        const response = await client.accountBalances.getAccountBalance({companySlug, accountCode, date})
 
         // Assert
         assertType<accountBalance>(response)

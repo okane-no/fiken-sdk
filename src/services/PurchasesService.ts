@@ -10,59 +10,91 @@ import type { purchaseRequest } from '../models/purchaseRequest';
 import type { purchaseResult } from '../models/purchaseResult';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
-import { request as __request } from '../core/request';
+import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 
 export class PurchasesService {
 
+    constructor(public readonly httpRequest: BaseHttpRequest) {}
+
     /**
      * Returns all purchases for given company
-     * @param companySlug Slug of company to retrieve
-     * @param page Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
-     * Default value is 0.
-     *
-     * @param pageSize Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
-     * Default value is 25.
-     *
-     * @param date Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param dateLe Filter based on date less than or equal to parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param dateLt Filter based on date strictly less than parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param dateGe Filter based on date greater than or equal to parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param dateGt Filter based on date strictly greater than parameter value
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param sortBy Sorts results in either ascending (asc) or descending (desc) order based on the parameter value.
-     * @param paid When set to true, returns only purchases that have been paid. Otherwise false returns all purchases
-     * that have not been fully settled.
-     *
      * @returns purchaseResult OK
      * @throws ApiError
      */
-    public static getPurchases(
+    public getPurchases({
+        companySlug,
+        page,
+        pageSize = 25,
+        date,
+        dateLe,
+        dateLt,
+        dateGe,
+        dateGt,
+        sortBy = 'date asc',
+        paid,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
+         * Default value is 0.
+         *
+         */
         page?: number,
-        pageSize: number = 25,
+        /**
+         * Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
+         * Default value is 25.
+         *
+         */
+        pageSize?: number,
+        /**
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         date?: string,
+        /**
+         * Filter based on date less than or equal to parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         dateLe?: string,
+        /**
+         * Filter based on date strictly less than parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         dateLt?: string,
+        /**
+         * Filter based on date greater than or equal to parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         dateGe?: string,
+        /**
+         * Filter based on date strictly greater than parameter value
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         dateGt?: string,
-        sortBy: 'date asc' | 'date desc' = 'date asc',
+        /**
+         * Sorts results in either ascending (asc) or descending (desc) order based on the parameter value.
+         */
+        sortBy?: 'date asc' | 'date desc',
+        /**
+         * When set to true, returns only purchases that have been paid. Otherwise false returns all purchases
+         * that have not been fully settled.
+         *
+         */
         paid?: boolean,
-    ): CancelablePromise<Array<purchaseResult>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<purchaseResult>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/purchases',
             path: {
@@ -84,16 +116,20 @@ export class PurchasesService {
 
     /**
      * Creates a new purchase.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createPurchase(
+    public createPurchase({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: purchaseRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/purchases',
             path: {
@@ -107,16 +143,20 @@ export class PurchasesService {
 
     /**
      * Returns purchase with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param purchaseId
      * @returns purchaseResult OK
      * @throws ApiError
      */
-    public static getPurchase(
+    public getPurchase({
+        companySlug,
+        purchaseId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         purchaseId: number,
-    ): CancelablePromise<purchaseResult> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<purchaseResult> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/purchases/{purchaseId}',
             path: {
@@ -128,18 +168,25 @@ export class PurchasesService {
 
     /**
      * Sets the deleted flag for a purchase. The purchase is not deleted, but a reverse transaction is created and the "deleted" property is set to true.
-     * @param companySlug Slug of company to retrieve
-     * @param purchaseId
-     * @param description Required description for deleting the purchase
      * @returns purchaseResult OK
      * @throws ApiError
      */
-    public static deletePurchase(
+    public deletePurchase({
+        companySlug,
+        purchaseId,
+        description,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         purchaseId: number,
+        /**
+         * Required description for deleting the purchase
+         */
         description: string,
-    ): CancelablePromise<purchaseResult> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<purchaseResult> {
+        return this.httpRequest.request({
             method: 'PATCH',
             url: '/companies/{companySlug}/purchases/{purchaseId}/delete',
             path: {
@@ -154,16 +201,20 @@ export class PurchasesService {
 
     /**
      * Returns all attachments for specified purchase.
-     * @param companySlug Slug of company to retrieve
-     * @param purchaseId
      * @returns attachment OK
      * @throws ApiError
      */
-    public static getPurchaseAttachments(
+    public getPurchaseAttachments({
+        companySlug,
+        purchaseId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         purchaseId: number,
-    ): CancelablePromise<Array<attachment>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<attachment>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/purchases/{purchaseId}/attachments',
             path: {
@@ -175,13 +226,17 @@ export class PurchasesService {
 
     /**
      * Creates and adds a new attachment to a Purchase
-     * @param companySlug Slug of company to retrieve
-     * @param purchaseId
-     * @param formData
      * @returns string Created
      * @throws ApiError
      */
-    public static addAttachmentToPurchase(
+    public addAttachmentToPurchase({
+        companySlug,
+        purchaseId,
+        formData,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         purchaseId: number,
         formData?: {
@@ -199,8 +254,8 @@ export class PurchasesService {
             attachToSale?: boolean;
             file?: Blob;
         },
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/purchases/{purchaseId}/attachments',
             path: {
@@ -215,16 +270,20 @@ export class PurchasesService {
 
     /**
      * Returns all purchases for given company
-     * @param companySlug Slug of company to retrieve
-     * @param purchaseId
      * @returns payment OK
      * @throws ApiError
      */
-    public static getPurchasePayments(
+    public getPurchasePayments({
+        companySlug,
+        purchaseId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         purchaseId: number,
-    ): CancelablePromise<Array<payment>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<payment>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/purchases/{purchaseId}/payments',
             path: {
@@ -236,18 +295,22 @@ export class PurchasesService {
 
     /**
      * Creates a new payment for a purchase
-     * @param companySlug Slug of company to retrieve
-     * @param purchaseId
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createPurchasePayment(
+    public createPurchasePayment({
+        companySlug,
+        purchaseId,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         purchaseId: number,
         requestBody: payment,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/purchases/{purchaseId}/payments',
             path: {
@@ -262,18 +325,22 @@ export class PurchasesService {
 
     /**
      * Returns given payment for specified purchase
-     * @param companySlug Slug of company to retrieve
-     * @param purchaseId
-     * @param paymentId
      * @returns payment OK
      * @throws ApiError
      */
-    public static getPurchasePayment(
+    public getPurchasePayment({
+        companySlug,
+        purchaseId,
+        paymentId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         purchaseId: number,
         paymentId: number,
-    ): CancelablePromise<payment> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<payment> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/purchases/{purchaseId}/payments/{paymentId}',
             path: {
@@ -286,22 +353,32 @@ export class PurchasesService {
 
     /**
      * Returns all purchase drafts for given company.
-     * @param companySlug Slug of company to retrieve
-     * @param page Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
-     * Default value is 0.
-     *
-     * @param pageSize Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
-     * Default value is 25.
-     *
      * @returns draftResult OK
      * @throws ApiError
      */
-    public static getPurchaseDrafts(
+    public getPurchaseDrafts({
+        companySlug,
+        page,
+        pageSize = 25,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
+         * Default value is 0.
+         *
+         */
         page?: number,
-        pageSize: number = 25,
-    ): CancelablePromise<Array<draftResult>> {
-        return __request(OpenAPI, {
+        /**
+         * Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
+         * Default value is 25.
+         *
+         */
+        pageSize?: number,
+    }): CancelablePromise<Array<draftResult>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/purchases/drafts',
             path: {
@@ -316,16 +393,20 @@ export class PurchasesService {
 
     /**
      * Creates a purchase draft.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createPurchaseDraft(
+    public createPurchaseDraft({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: draftRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/purchases/drafts',
             path: {
@@ -339,17 +420,24 @@ export class PurchasesService {
 
     /**
      * Returns draft with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns draftResult OK
      * @throws ApiError
      */
-    public static getPurchaseDraft(
+    public getPurchaseDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<draftResult> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<draftResult> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/purchases/drafts/{draftId}',
             path: {
@@ -362,19 +450,26 @@ export class PurchasesService {
     /**
      * Updates draft with provided id.
      *
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static updatePurchaseDraft(
+    public updatePurchaseDraft({
+        companySlug,
+        draftId,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
         requestBody: draftRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'PUT',
             url: '/companies/{companySlug}/purchases/drafts/{draftId}',
             path: {
@@ -389,17 +484,24 @@ export class PurchasesService {
 
     /**
      * Delete draft with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns void
      * @throws ApiError
      */
-    public static deletePurchaseDraft(
+    public deletePurchaseDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<void> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<void> {
+        return this.httpRequest.request({
             method: 'DELETE',
             url: '/companies/{companySlug}/purchases/drafts/{draftId}',
             path: {
@@ -411,17 +513,24 @@ export class PurchasesService {
 
     /**
      * Returns all attachments for specified draft.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns attachment OK
      * @throws ApiError
      */
-    public static getPurchaseDraftAttachments(
+    public getPurchaseDraftAttachments({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<Array<attachment>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<attachment>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/purchases/drafts/{draftId}/attachments',
             path: {
@@ -433,15 +542,22 @@ export class PurchasesService {
 
     /**
      * Creates and adds a new attachment to a draft
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
-     * @param formData
      * @returns string Created
      * @throws ApiError
      */
-    public static addAttachmentToPurchaseDraft(
+    public addAttachmentToPurchaseDraft({
+        companySlug,
+        draftId,
+        formData,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
         formData?: {
             /**
@@ -450,8 +566,8 @@ export class PurchasesService {
             filename?: string;
             file?: Blob;
         },
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/purchases/drafts/{draftId}/attachments',
             path: {
@@ -466,17 +582,24 @@ export class PurchasesService {
 
     /**
      * Creates a purchase from an already created draft.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns string Created
      * @throws ApiError
      */
-    public static createPurchaseFromDraft(
+    public createPurchaseFromDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/purchases/drafts/{draftId}/createPurchase',
             path: {

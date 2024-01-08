@@ -12,91 +12,144 @@ import type { sendInvoiceRequest } from '../models/sendInvoiceRequest';
 import type { updateInvoiceRequest } from '../models/updateInvoiceRequest';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
-import { request as __request } from '../core/request';
+import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 
 export class InvoicesService {
 
+    constructor(public readonly httpRequest: BaseHttpRequest) {}
+
     /**
      * Returns all invoices for given company. You can filter based on issue date, last modified date, customer ID, and if the invoice is settled or not.
-     * @param companySlug Slug of company to retrieve
-     * @param page Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
-     * Default value is 0.
-     *
-     * @param pageSize Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
-     * Default value is 25.
-     *
-     * @param issueDate Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param issueDateLe Filter based on date less than or equal to parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param issueDateLt Filter based on date strictly less than parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param issueDateGe Filter based on date greater than or equal to parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param issueDateGt Filter based on date strictly greater than parameter value
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param lastModified Filter based on date of last modification. Returns results that were last modified on the date provided as a parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param lastModifiedLe Returns results that have been last modified before or on the date provided as a parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param lastModifiedLt Returns results that have been last modified strictly before the date provided as a parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param lastModifiedGe Returns results that have been last modified after or on the date provided as a parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param lastModifiedGt Returns results that have been last modified strictly after the date provided as a parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param customerId Returns only invoices sent to specified customer. Must be the contactId provided by a GET contacts call.
-     *
-     * @param settled When set to true, returns only invoices that have been settled. Otherwise false returns all invoices
-     * that have not been fully settled.
-     *
-     * @param orderReference Filter based on order reference for a given invoice
-     * @param invoiceDraftUuid Filter based on the UUID of the invoice draft that was used to create a given invoice
-     * @param invoiceNumber
      * @returns invoiceResult OK
      * @throws ApiError
      */
-    public static getInvoices(
+    public getInvoices({
+        companySlug,
+        page,
+        pageSize = 25,
+        issueDate,
+        issueDateLe,
+        issueDateLt,
+        issueDateGe,
+        issueDateGt,
+        lastModified,
+        lastModifiedLe,
+        lastModifiedLt,
+        lastModifiedGe,
+        lastModifiedGt,
+        customerId,
+        settled,
+        orderReference,
+        invoiceDraftUuid,
+        invoiceNumber,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
+         * Default value is 0.
+         *
+         */
         page?: number,
-        pageSize: number = 25,
+        /**
+         * Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
+         * Default value is 25.
+         *
+         */
+        pageSize?: number,
+        /**
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDate?: string,
+        /**
+         * Filter based on date less than or equal to parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDateLe?: string,
+        /**
+         * Filter based on date strictly less than parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDateLt?: string,
+        /**
+         * Filter based on date greater than or equal to parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDateGe?: string,
+        /**
+         * Filter based on date strictly greater than parameter value
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDateGt?: string,
+        /**
+         * Filter based on date of last modification. Returns results that were last modified on the date provided as a parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         lastModified?: string,
+        /**
+         * Returns results that have been last modified before or on the date provided as a parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         lastModifiedLe?: string,
+        /**
+         * Returns results that have been last modified strictly before the date provided as a parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         lastModifiedLt?: string,
+        /**
+         * Returns results that have been last modified after or on the date provided as a parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         lastModifiedGe?: string,
+        /**
+         * Returns results that have been last modified strictly after the date provided as a parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         lastModifiedGt?: string,
+        /**
+         * Returns only invoices sent to specified customer. Must be the contactId provided by a GET contacts call.
+         *
+         */
         customerId?: number,
+        /**
+         * When set to true, returns only invoices that have been settled. Otherwise false returns all invoices
+         * that have not been fully settled.
+         *
+         */
         settled?: boolean,
+        /**
+         * Filter based on order reference for a given invoice
+         */
         orderReference?: string,
+        /**
+         * Filter based on the UUID of the invoice draft that was used to create a given invoice
+         */
         invoiceDraftUuid?: string,
         invoiceNumber?: string,
-    ): CancelablePromise<Array<invoiceResult>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<invoiceResult>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/invoices',
             path: {
@@ -132,16 +185,20 @@ export class InvoicesService {
      * An invoice line can also be a free text line meaning that no existing product will be associated with the invoiced line.
      * In this case all information regarding the price and VAT of the product or service to be invoiced must be provided.
      *
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createInvoice(
+    public createInvoice({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: invoiceRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/invoices',
             path: {
@@ -155,18 +212,25 @@ export class InvoicesService {
 
     /**
      * Returns invoice with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param invoiceId The invoiceId (primary key of the returned object) is returned in the GET all
-     * invoices call; not to be confused with invoiceNumber
-     *
      * @returns invoiceResult OK
      * @throws ApiError
      */
-    public static getInvoice(
+    public getInvoice({
+        companySlug,
+        invoiceId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The invoiceId (primary key of the returned object) is returned in the GET all
+         * invoices call; not to be confused with invoiceNumber
+         *
+         */
         invoiceId: number,
-    ): CancelablePromise<invoiceResult> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<invoiceResult> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/invoices/{invoiceId}',
             path: {
@@ -180,20 +244,27 @@ export class InvoicesService {
      * Updates invoice with provided id. It is possible to update the due date of an invoice
      * as well as if the invoice was sent manually, outside of Fiken.
      *
-     * @param companySlug Slug of company to retrieve
-     * @param invoiceId The invoiceId (primary key of the returned object) is returned in the GET all
-     * invoices call; not to be confused with invoiceNumber
-     *
-     * @param requestBody
      * @returns string OK
      * @throws ApiError
      */
-    public static updateInvoice(
+    public updateInvoice({
+        companySlug,
+        invoiceId,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The invoiceId (primary key of the returned object) is returned in the GET all
+         * invoices call; not to be confused with invoiceNumber
+         *
+         */
         invoiceId: number,
         requestBody: updateInvoiceRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'PATCH',
             url: '/companies/{companySlug}/invoices/{invoiceId}',
             path: {
@@ -208,18 +279,25 @@ export class InvoicesService {
 
     /**
      * Returns all attachments for a given Invoice
-     * @param companySlug Slug of company to retrieve
-     * @param invoiceId The invoiceId (primary key of the returned object) is returned in the GET all
-     * invoices call; not to be confused with invoiceNumber
-     *
      * @returns attachment OK
      * @throws ApiError
      */
-    public static getInvoiceAttachments(
+    public getInvoiceAttachments({
+        companySlug,
+        invoiceId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The invoiceId (primary key of the returned object) is returned in the GET all
+         * invoices call; not to be confused with invoiceNumber
+         *
+         */
         invoiceId: number,
-    ): CancelablePromise<Array<attachment>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<attachment>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/invoices/{invoiceId}/attachments',
             path: {
@@ -231,16 +309,23 @@ export class InvoicesService {
 
     /**
      * Creates and adds a new attachment to an Invoice
-     * @param companySlug Slug of company to retrieve
-     * @param invoiceId The invoiceId (primary key of the returned object) is returned in the GET all
-     * invoices call; not to be confused with invoiceNumber
-     *
-     * @param formData
      * @returns string Created
      * @throws ApiError
      */
-    public static addAttachmentToInvoice(
+    public addAttachmentToInvoice({
+        companySlug,
+        invoiceId,
+        formData,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The invoiceId (primary key of the returned object) is returned in the GET all
+         * invoices call; not to be confused with invoiceNumber
+         *
+         */
         invoiceId: number,
         formData?: {
             /**
@@ -249,8 +334,8 @@ export class InvoicesService {
             filename?: string;
             file?: Blob;
         },
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/invoices/{invoiceId}/attachments',
             path: {
@@ -265,16 +350,20 @@ export class InvoicesService {
 
     /**
      * Sends the specified document
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns any Sent
      * @throws ApiError
      */
-    public static sendInvoice(
+    public sendInvoice({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: sendInvoiceRequest,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<any> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/invoices/send',
             path: {
@@ -288,14 +377,18 @@ export class InvoicesService {
     /**
      * Retrieves the counter for invoices if it has been created
      *
-     * @param companySlug Slug of company to retrieve
      * @returns counter OK
      * @throws ApiError
      */
-    public static getInvoiceCounter(
+    public getInvoiceCounter({
+        companySlug,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
-    ): CancelablePromise<counter> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<counter> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/invoices/counter',
             path: {
@@ -306,16 +399,20 @@ export class InvoicesService {
 
     /**
      * Creates the first invoice number which is then increased by one with every new invoice. By sending an empty request body the default is base number 10000 (the first invoice number will thus be 10001), but can be specified to another starting value.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns any Created
      * @throws ApiError
      */
-    public static createInvoiceCounter(
+    public createInvoiceCounter({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody?: counter,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<any> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/invoices/counter',
             path: {
@@ -328,26 +425,42 @@ export class InvoicesService {
 
     /**
      * Returns all invoice drafts for given company.
-     * @param companySlug Slug of company to retrieve
-     * @param page Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
-     * Default value is 0.
-     *
-     * @param pageSize Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
-     * Default value is 25.
-     *
-     * @param orderReference Filter based on order reference for a given invoice draft
-     * @param uuid Filter based on the UUID of the draft.
      * @returns invoiceishDraftResult OK
      * @throws ApiError
      */
-    public static getInvoiceDrafts(
+    public getInvoiceDrafts({
+        companySlug,
+        page,
+        pageSize = 25,
+        orderReference,
+        uuid,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
+         * Default value is 0.
+         *
+         */
         page?: number,
-        pageSize: number = 25,
+        /**
+         * Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
+         * Default value is 25.
+         *
+         */
+        pageSize?: number,
+        /**
+         * Filter based on order reference for a given invoice draft
+         */
         orderReference?: string,
+        /**
+         * Filter based on the UUID of the draft.
+         */
         uuid?: string,
-    ): CancelablePromise<Array<invoiceishDraftResult>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<invoiceishDraftResult>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/invoices/drafts',
             path: {
@@ -364,16 +477,20 @@ export class InvoicesService {
 
     /**
      * Creates an invoice draft.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createInvoiceDraft(
+    public createInvoiceDraft({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: invoiceishDraftRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/invoices/drafts',
             path: {
@@ -387,17 +504,24 @@ export class InvoicesService {
 
     /**
      * Returns invoice draft with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns invoiceishDraftResult OK
      * @throws ApiError
      */
-    public static getInvoiceDraft(
+    public getInvoiceDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<invoiceishDraftResult> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<invoiceishDraftResult> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/invoices/drafts/{draftId}',
             path: {
@@ -410,19 +534,26 @@ export class InvoicesService {
     /**
      * Updates invoice draft with provided id.
      *
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static updateInvoiceDraft(
+    public updateInvoiceDraft({
+        companySlug,
+        draftId,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
         requestBody: invoiceishDraftRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'PUT',
             url: '/companies/{companySlug}/invoices/drafts/{draftId}',
             path: {
@@ -437,17 +568,24 @@ export class InvoicesService {
 
     /**
      * Delete invoice draft with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns void
      * @throws ApiError
      */
-    public static deleteInvoiceDraft(
+    public deleteInvoiceDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<void> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<void> {
+        return this.httpRequest.request({
             method: 'DELETE',
             url: '/companies/{companySlug}/invoices/drafts/{draftId}',
             path: {
@@ -459,17 +597,24 @@ export class InvoicesService {
 
     /**
      * Returns all attachments for specified draft.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns attachment OK
      * @throws ApiError
      */
-    public static getInvoiceDraftAttachments(
+    public getInvoiceDraftAttachments({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<Array<attachment>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<attachment>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/invoices/drafts/{draftId}/attachments',
             path: {
@@ -481,15 +626,22 @@ export class InvoicesService {
 
     /**
      * Creates and adds a new attachment to an invoice draft
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
-     * @param formData
      * @returns string Created
      * @throws ApiError
      */
-    public static addAttachmentToInvoiceDraft(
+    public addAttachmentToInvoiceDraft({
+        companySlug,
+        draftId,
+        formData,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
         formData?: {
             /**
@@ -502,8 +654,8 @@ export class InvoicesService {
             comment?: string;
             file?: Blob;
         },
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/invoices/drafts/{draftId}/attachments',
             path: {
@@ -518,17 +670,24 @@ export class InvoicesService {
 
     /**
      * Creates an invoice from an already created draft.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns string Created
      * @throws ApiError
      */
-    public static createInvoiceFromDraft(
+    public createInvoiceFromDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/invoices/drafts/{draftId}/createInvoice',
             path: {

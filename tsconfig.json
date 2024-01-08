@@ -23,6 +23,7 @@
         "dist",
         "node_modules",
         "test",
-        "vitest.config.ts"
+        "vitest.config.ts",
+        "generated"
     ]
 }

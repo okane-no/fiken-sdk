@@ -9,29 +9,40 @@ import type { invoiceishDraftResult } from '../models/invoiceishDraftResult';
 import type { orderConfirmation } from '../models/orderConfirmation';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
-import { request as __request } from '../core/request';
+import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 
 export class OrderConfirmationsService {
 
+    constructor(public readonly httpRequest: BaseHttpRequest) {}
+
     /**
      * Returns all order confirmations for given company
-     * @param companySlug Slug of company to retrieve
-     * @param page Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
-     * Default value is 0.
-     *
-     * @param pageSize Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
-     * Default value is 25.
-     *
      * @returns orderConfirmation OK
      * @throws ApiError
      */
-    public static getOrderConfirmations(
+    public getOrderConfirmations({
+        companySlug,
+        page,
+        pageSize = 25,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
+         * Default value is 0.
+         *
+         */
         page?: number,
-        pageSize: number = 25,
-    ): CancelablePromise<Array<orderConfirmation>> {
-        return __request(OpenAPI, {
+        /**
+         * Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
+         * Default value is 25.
+         *
+         */
+        pageSize?: number,
+    }): CancelablePromise<Array<orderConfirmation>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/orderConfirmations',
             path: {
@@ -46,18 +57,25 @@ export class OrderConfirmationsService {
 
     /**
      * Returns order confirmation with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param confirmationId The confirmationId (primary key of the returned object) is returned as the first field in the GET all
-     * order confirmations call
-     *
      * @returns orderConfirmation OK
      * @throws ApiError
      */
-    public static getOrderConfirmation(
+    public getOrderConfirmation({
+        companySlug,
+        confirmationId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The confirmationId (primary key of the returned object) is returned as the first field in the GET all
+         * order confirmations call
+         *
+         */
         confirmationId: string,
-    ): CancelablePromise<orderConfirmation> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<orderConfirmation> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/orderConfirmations/{confirmationId}',
             path: {
@@ -70,14 +88,18 @@ export class OrderConfirmationsService {
     /**
      * Retrieves the counter for order confirmations if it has been created
      *
-     * @param companySlug Slug of company to retrieve
      * @returns counter OK
      * @throws ApiError
      */
-    public static getOrderConfirmationCounter(
+    public getOrderConfirmationCounter({
+        companySlug,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
-    ): CancelablePromise<counter> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<counter> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/orderConfirmations/counter',
             path: {
@@ -88,16 +110,20 @@ export class OrderConfirmationsService {
 
     /**
      * Creates the first order confirmation number which is then increased by one with every new order confirmation. By sending an empty request body the default is base number (the first order confirmation number will thus be 10001), but can be specified to another starting value.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns any Created
      * @throws ApiError
      */
-    public static createOrderConfirmationCounter(
+    public createOrderConfirmationCounter({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody?: counter,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<any> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/orderConfirmations/counter',
             path: {
@@ -110,18 +136,25 @@ export class OrderConfirmationsService {
 
     /**
      * Creates an invoice draft from an order confirmation
-     * @param companySlug Slug of company to retrieve
-     * @param confirmationId The confirmationId (primary key of the returned object) is returned as the first field in the GET all
-     * order confirmations call
-     *
      * @returns string Created
      * @throws ApiError
      */
-    public static createInvoiceDraftFromOrderConfirmation(
+    public createInvoiceDraftFromOrderConfirmation({
+        companySlug,
+        confirmationId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The confirmationId (primary key of the returned object) is returned as the first field in the GET all
+         * order confirmations call
+         *
+         */
         confirmationId: string,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/orderConfirmations/{confirmationId}/createInvoiceDraft',
             path: {
@@ -134,22 +167,32 @@ export class OrderConfirmationsService {
 
     /**
      * Returns all order confirmation drafts for given company.
-     * @param companySlug Slug of company to retrieve
-     * @param page Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
-     * Default value is 0.
-     *
-     * @param pageSize Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
-     * Default value is 25.
-     *
      * @returns invoiceishDraftResult OK
      * @throws ApiError
      */
-    public static getOrderConfirmationDrafts(
+    public getOrderConfirmationDrafts({
+        companySlug,
+        page,
+        pageSize = 25,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
+         * Default value is 0.
+         *
+         */
         page?: number,
-        pageSize: number = 25,
-    ): CancelablePromise<Array<invoiceishDraftResult>> {
-        return __request(OpenAPI, {
+        /**
+         * Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
+         * Default value is 25.
+         *
+         */
+        pageSize?: number,
+    }): CancelablePromise<Array<invoiceishDraftResult>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/orderConfirmations/drafts',
             path: {
@@ -164,16 +207,20 @@ export class OrderConfirmationsService {
 
     /**
      * Creates an order confirmation draft.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createOrderConfirmationDraft(
+    public createOrderConfirmationDraft({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: invoiceishDraftRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/orderConfirmations/drafts',
             path: {
@@ -187,17 +234,24 @@ export class OrderConfirmationsService {
 
     /**
      * Returns order confirmation draft with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns invoiceishDraftResult OK
      * @throws ApiError
      */
-    public static getOrderConfirmationDraft(
+    public getOrderConfirmationDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<invoiceishDraftResult> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<invoiceishDraftResult> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/orderConfirmations/drafts/{draftId}',
             path: {
@@ -210,19 +264,26 @@ export class OrderConfirmationsService {
     /**
      * Updates order confirmation draft with provided id.
      *
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static updateOrderConfirmationDraft(
+    public updateOrderConfirmationDraft({
+        companySlug,
+        draftId,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
         requestBody: invoiceishDraftRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'PUT',
             url: '/companies/{companySlug}/orderConfirmations/drafts/{draftId}',
             path: {
@@ -237,17 +298,24 @@ export class OrderConfirmationsService {
 
     /**
      * Delete order confirmation draft with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns void
      * @throws ApiError
      */
-    public static deleteOrderConfirmationDraft(
+    public deleteOrderConfirmationDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<void> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<void> {
+        return this.httpRequest.request({
             method: 'DELETE',
             url: '/companies/{companySlug}/orderConfirmations/drafts/{draftId}',
             path: {
@@ -259,17 +327,24 @@ export class OrderConfirmationsService {
 
     /**
      * Returns all attachments for specified draft.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns attachment OK
      * @throws ApiError
      */
-    public static getOrderConfirmationDraftAttachments(
+    public getOrderConfirmationDraftAttachments({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<Array<attachment>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<attachment>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/orderConfirmations/drafts/{draftId}/attachments',
             path: {
@@ -281,15 +356,22 @@ export class OrderConfirmationsService {
 
     /**
      * Creates and adds a new attachment to an order confirmation draft
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
-     * @param formData
      * @returns string Created
      * @throws ApiError
      */
-    public static addAttachmentToOrderConfirmationDraft(
+    public addAttachmentToOrderConfirmationDraft({
+        companySlug,
+        draftId,
+        formData,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
         formData?: {
             /**
@@ -302,8 +384,8 @@ export class OrderConfirmationsService {
             comment?: string;
             file?: Blob;
         },
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/orderConfirmations/drafts/{draftId}/attachments',
             path: {
@@ -318,17 +400,24 @@ export class OrderConfirmationsService {
 
     /**
      * Creates an order confirmation from an already created draft.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns string Created
      * @throws ApiError
      */
-    public static createOrderConfirmationFromDraft(
+    public createOrderConfirmationFromDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/orderConfirmations/drafts/{draftId}/createOrderConfirmation',
             path: {

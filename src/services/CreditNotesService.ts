@@ -12,62 +12,97 @@ import type { partialCreditNoteRequest } from '../models/partialCreditNoteReques
 import type { sendCreditNoteRequest } from '../models/sendCreditNoteRequest';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
-import { request as __request } from '../core/request';
+import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 
 export class CreditNotesService {
 
+    constructor(public readonly httpRequest: BaseHttpRequest) {}
+
     /**
      * Returns all credit notes for given company
-     * @param companySlug Slug of company to retrieve
-     * @param page Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
-     * Default value is 0.
-     *
-     * @param pageSize Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
-     * Default value is 25.
-     *
-     * @param issueDate Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param issueDateLe Filter based on date less than or equal to parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param issueDateLt Filter based on date strictly less than parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param issueDateGe Filter based on date greater than or equal to parameter value.
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param issueDateGt Filter based on date strictly greater than parameter value
-     * Dates are represented as strings formatted as YYYY-MM-DD.
-     * Example: January 1st, 1970: "1970-01-01"
-     *
-     * @param customerId Returns only credit notes sent to specified customer. Must be the contactId provided by a GET contacts call.
-     *
-     * @param settled When set to true, returns only credit notes that have been settled. Otherwise false returns all credit notes
-     * that have not been fully settled.
-     *
-     * @param creditNoteDraftUuid Filter based on the UUID of the credit note draft that was used to create a given invoice. Applies only to "uavhengig kreditnotaer".
      * @returns creditNoteResult OK
      * @throws ApiError
      */
-    public static getCreditNotes(
+    public getCreditNotes({
+        companySlug,
+        page,
+        pageSize = 25,
+        issueDate,
+        issueDateLe,
+        issueDateLt,
+        issueDateGe,
+        issueDateGt,
+        customerId,
+        settled,
+        creditNoteDraftUuid,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
+         * Default value is 0.
+         *
+         */
         page?: number,
-        pageSize: number = 25,
+        /**
+         * Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
+         * Default value is 25.
+         *
+         */
+        pageSize?: number,
+        /**
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDate?: string,
+        /**
+         * Filter based on date less than or equal to parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDateLe?: string,
+        /**
+         * Filter based on date strictly less than parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDateLt?: string,
+        /**
+         * Filter based on date greater than or equal to parameter value.
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDateGe?: string,
+        /**
+         * Filter based on date strictly greater than parameter value
+         * Dates are represented as strings formatted as YYYY-MM-DD.
+         * Example: January 1st, 1970: "1970-01-01"
+         *
+         */
         issueDateGt?: string,
+        /**
+         * Returns only credit notes sent to specified customer. Must be the contactId provided by a GET contacts call.
+         *
+         */
         customerId?: number,
+        /**
+         * When set to true, returns only credit notes that have been settled. Otherwise false returns all credit notes
+         * that have not been fully settled.
+         *
+         */
         settled?: boolean,
+        /**
+         * Filter based on the UUID of the credit note draft that was used to create a given invoice. Applies only to "uavhengig kreditnotaer".
+         */
         creditNoteDraftUuid?: string,
-    ): CancelablePromise<Array<creditNoteResult>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<creditNoteResult>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/creditNotes',
             path: {
@@ -90,16 +125,20 @@ export class CreditNotesService {
 
     /**
      * Creates a new credit note that covers the full amount of the associated invoice.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createFullCreditNote(
+    public createFullCreditNote({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: fullCreditNoteRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/creditNotes/full',
             path: {
@@ -113,16 +152,20 @@ export class CreditNotesService {
 
     /**
      * Creates a new credit note that doesn't fully cover the total amount of the associated invoice.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createPartialCreditNote(
+    public createPartialCreditNote({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: partialCreditNoteRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/creditNotes/partial',
             path: {
@@ -136,18 +179,25 @@ export class CreditNotesService {
 
     /**
      * Returns credit note with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param creditNoteId The creditNoteId (primary key of the returned object) is returned as the first field in the GET all
-     * credit notes call; not to be confused with creditNoteNumber
-     *
      * @returns creditNoteResult OK
      * @throws ApiError
      */
-    public static getCreditNote(
+    public getCreditNote({
+        companySlug,
+        creditNoteId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The creditNoteId (primary key of the returned object) is returned as the first field in the GET all
+         * credit notes call; not to be confused with creditNoteNumber
+         *
+         */
         creditNoteId: string,
-    ): CancelablePromise<creditNoteResult> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<creditNoteResult> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/creditNotes/{creditNoteId}',
             path: {
@@ -159,16 +209,20 @@ export class CreditNotesService {
 
     /**
      * Sends the specified document
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns any Sent
      * @throws ApiError
      */
-    public static sendCreditNote(
+    public sendCreditNote({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: sendCreditNoteRequest,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<any> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/creditNotes/send',
             path: {
@@ -182,14 +236,18 @@ export class CreditNotesService {
     /**
      * Retrieves the counter for credit notes if it has been created
      *
-     * @param companySlug Slug of company to retrieve
      * @returns counter OK
      * @throws ApiError
      */
-    public static getCreditNoteCounter(
+    public getCreditNoteCounter({
+        companySlug,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
-    ): CancelablePromise<counter> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<counter> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/creditNotes/counter',
             path: {
@@ -200,16 +258,20 @@ export class CreditNotesService {
 
     /**
      * Creates the first credit note number which is then increased by one with every new credit note. By sending an empty request body the default is base number 10000 (the first credit note number will thus be 10001), but can be specified to another starting value.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns any Created
      * @throws ApiError
      */
-    public static createCreditNoteCounter(
+    public createCreditNoteCounter({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody?: counter,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<any> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/creditNotes/counter',
             path: {
@@ -222,22 +284,32 @@ export class CreditNotesService {
 
     /**
      * Returns all credit note drafts for given company.
-     * @param companySlug Slug of company to retrieve
-     * @param page Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
-     * Default value is 0.
-     *
-     * @param pageSize Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
-     * Default value is 25.
-     *
      * @returns invoiceishDraftResult OK
      * @throws ApiError
      */
-    public static getCreditNoteDrafts(
+    public getCreditNoteDrafts({
+        companySlug,
+        page,
+        pageSize = 25,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * Returns the number of the page to return. Valid page values are integers from 0 to the total number of pages.
+         * Default value is 0.
+         *
+         */
         page?: number,
-        pageSize: number = 25,
-    ): CancelablePromise<Array<invoiceishDraftResult>> {
-        return __request(OpenAPI, {
+        /**
+         * Defines the number of entries to return on each page. Maximum number of results that can be returned at one time are 100.
+         * Default value is 25.
+         *
+         */
+        pageSize?: number,
+    }): CancelablePromise<Array<invoiceishDraftResult>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/creditNotes/drafts',
             path: {
@@ -252,16 +324,20 @@ export class CreditNotesService {
 
     /**
      * Creates a credit note draft. This draft corresponds to a draft for an "uavhengig kreditnota" in Fiken.
-     * @param companySlug Slug of company to retrieve
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static createCreditNoteDraft(
+    public createCreditNoteDraft({
+        companySlug,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
         requestBody: invoiceishDraftRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/creditNotes/drafts',
             path: {
@@ -275,17 +351,24 @@ export class CreditNotesService {
 
     /**
      * Returns credit note draft with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns invoiceishDraftResult OK
      * @throws ApiError
      */
-    public static getCreditNoteDraft(
+    public getCreditNoteDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<invoiceishDraftResult> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<invoiceishDraftResult> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/creditNotes/drafts/{draftId}',
             path: {
@@ -298,19 +381,26 @@ export class CreditNotesService {
     /**
      * Updates credit note draft with provided id.
      *
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
-     * @param requestBody
      * @returns string Created
      * @throws ApiError
      */
-    public static updateCreditNoteDraft(
+    public updateCreditNoteDraft({
+        companySlug,
+        draftId,
+        requestBody,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
         requestBody: invoiceishDraftRequest,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'PUT',
             url: '/companies/{companySlug}/creditNotes/drafts/{draftId}',
             path: {
@@ -325,17 +415,24 @@ export class CreditNotesService {
 
     /**
      * Delete credit note draft with specified id.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns void
      * @throws ApiError
      */
-    public static deleteCreditNoteDraft(
+    public deleteCreditNoteDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<void> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<void> {
+        return this.httpRequest.request({
             method: 'DELETE',
             url: '/companies/{companySlug}/creditNotes/drafts/{draftId}',
             path: {
@@ -347,17 +444,24 @@ export class CreditNotesService {
 
     /**
      * Returns all attachments for specified draft.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns attachment OK
      * @throws ApiError
      */
-    public static getCreditNoteDraftAttachments(
+    public getCreditNoteDraftAttachments({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<Array<attachment>> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<Array<attachment>> {
+        return this.httpRequest.request({
             method: 'GET',
             url: '/companies/{companySlug}/creditNotes/drafts/{draftId}/attachments',
             path: {
@@ -369,15 +473,22 @@ export class CreditNotesService {
 
     /**
      * Creates and adds a new attachment to a credit note draft
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
-     * @param formData
      * @returns string Created
      * @throws ApiError
      */
-    public static addAttachmentToCreditNoteDraft(
+    public addAttachmentToCreditNoteDraft({
+        companySlug,
+        draftId,
+        formData,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
         formData?: {
             /**
@@ -390,8 +501,8 @@ export class CreditNotesService {
             comment?: string;
             file?: Blob;
         },
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/creditNotes/drafts/{draftId}/attachments',
             path: {
@@ -406,17 +517,24 @@ export class CreditNotesService {
 
     /**
      * Creates a credit note from an already created draft.
-     * @param companySlug Slug of company to retrieve
-     * @param draftId The draftId (primary key of the returned object) is returned in the GET all drafts call.
-     *
      * @returns string Created
      * @throws ApiError
      */
-    public static createCreditNoteFromDraft(
+    public createCreditNoteFromDraft({
+        companySlug,
+        draftId,
+    }: {
+        /**
+         * Slug of company to retrieve
+         */
         companySlug: string,
+        /**
+         * The draftId (primary key of the returned object) is returned in the GET all drafts call.
+         *
+         */
         draftId: number,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
+    }): CancelablePromise<string> {
+        return this.httpRequest.request({
             method: 'POST',
             url: '/companies/{companySlug}/creditNotes/drafts/{draftId}/createCreditNote',
             path: {

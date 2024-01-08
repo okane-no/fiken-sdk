@@ -1,18 +1,20 @@
 import { assertType, beforeAll, describe, it } from 'vitest'
-import { OpenAPI, userinfo, UserService } from '../src/index'
+import { FikenClient, OpenAPI, userinfo, UserService } from '../src/index'
 import 'dotenv/config'
 
 describe('User Service', () => {
 
+    let client: FikenClient
+
     beforeAll(async () => {
-        OpenAPI.TOKEN = process.env.ACCESS_TOKEN
+        client = new FikenClient({TOKEN: process.env.ACCESS_TOKEN})
     })
 
     it('Returns information about the user', async () => {
         // Arrange
 
         // Act
-        const response = await UserService.getUser()
+        const response = await client.user.getUser()
 
         // Assert
         assertType<userinfo>(response)

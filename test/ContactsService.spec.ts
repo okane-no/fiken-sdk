@@ -1,19 +1,18 @@
-import { afterAll, assert, assertType, beforeAll, describe, expect, it } from 'vitest'
-import { ContactsService, OpenAPI, contact, contactPerson } from '../src/index'
+import { assertType, beforeAll, describe, expect, it } from 'vitest'
+import {  contact, contactPerson, FikenClient } from '../src/index'
 import 'dotenv/config'
 
 const testContactName = "TEST"
 
+const getTestContact = async (client: FikenClient, companySlug: string) => {
 
-const getTestContact = async (companySlug: string) => {
-
-    const response = await ContactsService.getContacts(companySlug)
+    const response = await client.contacts.getContacts({ companySlug })
 
     const testContact = response.find(contact => contact.name === testContactName)
 
     if (testContact) {
         testContact.phoneNumber = '12345678'
-        await ContactsService.updateContact(companySlug, testContact.contactId!, testContact)
+        await client.contacts.updateContact({ companySlug: companySlug, contactId: testContact.contactId!, requestBody: testContact })
         return testContact
     } else {
         let testContact: contact = {
@@ -39,7 +38,7 @@ const getTestContact = async (companySlug: string) => {
                 }
             ]
         }
-        const response = await ContactsService.createContact(companySlug, testContact)
+        const response = await client.contacts.createContact({ companySlug: companySlug, requestBody: testContact })
 
         console.log(response)
 
@@ -52,18 +51,20 @@ describe('Contacts Service', () => {
     let companySlug: string
     let testContact: contact
 
-    beforeAll(async () => {
-        OpenAPI.TOKEN = process.env.ACCESS_TOKEN
-        companySlug = process.env.COMPANY_SLUG!
+    let client: FikenClient
 
-        testContact = await getTestContact(companySlug)
+    beforeAll(async () => {
+        companySlug = process.env.COMPANY_SLUG!
+        client = new FikenClient({ TOKEN: process.env.ACCESS_TOKEN })
+
+        testContact = await getTestContact(client, companySlug)
     })
 
     it('Retrieves all contacts for the specified company', async () => {
         // Arrange
 
         // Act
-        const response = await ContactsService.getContacts(companySlug)
+        const response = await client.contacts.getContacts({ companySlug })
 
         // Assert
         response.forEach(contact => {
@@ -75,7 +76,7 @@ describe('Contacts Service', () => {
         // Arrange
 
         // Act
-        const createdContact = await ContactsService.createContact(companySlug, { ...testContact, ...{ name: testContact.name + '-' + Date.now() } })
+        const createdContact = await client.contacts.createContact({ companySlug: companySlug, requestBody: { ...testContact, ...{ name: testContact.name + '-' + Date.now() } } })
 
         // Assert
         assertType<string>(createdContact)
@@ -88,7 +89,7 @@ describe('Contacts Service', () => {
         }
 
         // Act
-        const response = await ContactsService.getContact(companySlug, testContact.contactId)
+        const response = await client.contacts.getContact({ companySlug: companySlug, contactId: testContact.contactId })
 
         // Assert
         assertType<contact>(response)
@@ -101,8 +102,8 @@ describe('Contacts Service', () => {
         }
 
         // Act
-        const response = await ContactsService.updateContact(companySlug, testContact.contactId, { ...testContact, ...{ phoneNumber: '87654321' } })
-        const updatedContact = await ContactsService.getContact(companySlug, testContact.contactId)
+        const response = await client.contacts.updateContact({ companySlug, contactId: testContact.contactId, requestBody: { ...testContact, ...{ phoneNumber: '87654321' } } })
+        const updatedContact = await client.contacts.getContact({ companySlug, contactId: testContact.contactId })
 
         // Assert
         expect(testContact.phoneNumber).not.be.equal(updatedContact.phoneNumber)
@@ -114,7 +115,7 @@ describe('Contacts Service', () => {
             throw Error('contactId can not be undefined')
         }
 
-        let blob = new Blob(['hello world'])
+        let blob = new Blob(["test"], {type: 'text/plain'})
         let formData = {
             filename: 'test.txt',
             comment: undefined,
@@ -122,7 +123,7 @@ describe('Contacts Service', () => {
         }
 
         // Act
-        const response = await ContactsService.addAttachmentToContact(companySlug, testContact.contactId, formData)
+        const response = await client.contacts.addAttachmentToContact({ companySlug, contactId: testContact.contactId, formData })
 
         // Assert
         assertType<string>(response)
@@ -135,7 +136,7 @@ describe('Contacts Service', () => {
         }
 
         // Act
-        const response = await ContactsService.getContactContactPerson(companySlug, testContact.contactId)
+        const response = await client.contacts.getContactContactPerson({ companySlug, contactId: testContact.contactId })
 
         // Assert
         response.forEach(contactPerson => {
@@ -162,7 +163,7 @@ describe('Contacts Service', () => {
         }
 
         // Act
-        const response = await ContactsService.addContactPersonToContact(companySlug, testContact.contactId, testContactPerson)
+        const response = await client.contacts.addContactPersonToContact({ companySlug, contactId: testContact.contactId, requestBody: testContactPerson })
 
         // Assert
         assertType<string>(response)
@@ -175,7 +176,7 @@ describe('Contacts Service', () => {
         }
 
         // Act
-        const response = await ContactsService.getContactContactPerson(companySlug, testContact.contactId)
+        const response = await client.contacts.getContactContactPerson({ companySlug, contactId: testContact.contactId })
 
         // Assert
         response.forEach(contact => {
@@ -189,11 +190,11 @@ describe('Contacts Service', () => {
             throw Error('contactId can not be undefined')
         }
 
-        const contactPersons = await ContactsService.getContactContactPerson(companySlug, testContact.contactId)
+        const contactPersons = await client.contacts.getContactContactPerson({ companySlug, contactId: testContact.contactId })
         let contactPerson = contactPersons[0]
 
         // Act
-        const response = await ContactsService.updateContactContactPerson(companySlug, testContact.contactId, contactPerson.contactPersonId!, { ...contactPerson, ...{ phoneNumber: '4444444' } })
+        const response = await client.contacts.updateContactContactPerson({ companySlug, contactId: testContact.contactId, contactPersonId: contactPerson.contactPersonId!, requestBody: { ...contactPerson, ...{ phoneNumber: '4444444' } } })
 
         // Assert
         assertType<string>(response)
@@ -205,11 +206,11 @@ describe('Contacts Service', () => {
             throw Error('contactId can not be undefined')
         }
 
-        const contactPersons = await ContactsService.getContactContactPerson(companySlug, testContact.contactId)
+        const contactPersons = await client.contacts.getContactContactPerson({ companySlug, contactId: testContact.contactId })
         let contactPerson = contactPersons[0]
 
         // Act
-        const response = await ContactsService.deleteContactContactPerson(companySlug, testContact.contactId!, contactPerson.contactPersonId!)
+        const response = await await client.contacts.deleteContactContactPerson({ companySlug, contactId: testContact.contactId!, contactPersonId: contactPerson.contactPersonId! })
 
         // Assert
     })
