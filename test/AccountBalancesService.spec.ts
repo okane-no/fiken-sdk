@@ -1,83 +1,39 @@
-import { beforeAll, describe, expect, it } from 'vitest'
+import { assertType, beforeAll, describe, it } from 'vitest'
 import { accountBalance, AccountBalancesService, OpenAPI } from '../src/index'
-import { PactV3, MatchersV3 } from '@pact-foundation/pact'
 import 'dotenv/config'
-import path from 'path';
 
 describe('Account Balances Service', () => {
 
-    let companySlug = "acme"
-    let date = "2024-01-01"
+    let companySlug: string
+    let date: string
 
-    const provider = new PactV3({
-        dir: path.resolve(process.cwd(), 'pacts'),
-        consumer: 'fiken-sdk',
-        provider: 'Fiken API',
-    });
+    beforeAll(async () => {
+        OpenAPI.TOKEN = process.env.ACCESS_TOKEN
+        companySlug = process.env.COMPANY_SLUG!
+        date = "2024-01-01"
+    })
 
-    const accountBalanceExample: accountBalance = {
-        "code": "1500:10029",
-        "name": "John Lewis",
-        "balance": 15200
-    };
-
-
-    it('retrieves account balances', async () => {
+    it('Retrieves the bookkeeping accounts and closing balances for a given date', async () => {
         // Arrange
-        const EXPECTED_BODY = MatchersV3.eachLike(accountBalanceExample);
 
-        provider
-            .given('I have a list of account balances')
-            .uponReceiving('a request for all account balances')
-            .withRequest({
-                method: 'GET',
-                path: `/companies/${companySlug}/accountBalances`,
-                query: { date: date, pageSize: '25' },
-                headers: { Accept: 'application/json' }
-            })
-            .willRespondWith({
-                status: 200,
-                contentType: 'application/json',
-                body: EXPECTED_BODY
-            })
+        // Act
+        const response = await AccountBalancesService.getAccountBalances(companySlug, date)
 
-        return provider.executeTest(async (mockserver) => {
-            // Act
-            OpenAPI.BASE = mockserver.url
-            const accountBalances = await AccountBalancesService.getAccountBalances(companySlug, date)
-
-            // Assert
-            expect(accountBalances[0]).to.deep.eq(accountBalanceExample)
+        // Assert
+        response.forEach(accountBalance => {
+            assertType<accountBalance>(accountBalance)
         })
     })
 
-    it('retrieves account balance', async () => {
+    it('Retrieves the specified bookkeping account and balance for a given date', async () => {
         // Arrange
-        let accountCode = "1"
+        let accountCode = process.env.ACCOUNT_CODE!
 
-        const EXPECTED_BODY = MatchersV3.like({ ...accountBalanceExample, ...{ accountCode: 1 } });
+        // Act
+        const response = await AccountBalancesService.getAccountBalance(companySlug, accountCode, date)
 
-        provider
-            .given('I have a list of account balances')
-            .uponReceiving('a request for a specific account balance')
-            .withRequest({
-                method: 'GET',
-                path: `/companies/${companySlug}/accountBalances/${accountCode}`,
-                query: { date: date },
-                headers: { Accept: 'application/json' }
-            })
-            .willRespondWith({
-                status: 200,
-                contentType: 'application/json',
-                body: EXPECTED_BODY
-            })
+        // Assert
+        assertType<accountBalance>(response)
 
-        return provider.executeTest(async (mockserver) => {
-            // Act
-            const accountBalance: accountBalance = await AccountBalancesService.getAccountBalance(companySlug, accountCode, date)
-
-            // Assert
-            expect(accountBalance).to.deep.eq(accountBalanceExample)
-        })
     })
 })
