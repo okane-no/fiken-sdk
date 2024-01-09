@@ -1,20 +1,21 @@
 {
-    "name": "fiken-sdk",
-    "version": "2.0.0",
-    "description": "NodeJS client for fiken-sdk",
+    "name": "@okane-no/fiken-sdk",
+    "version": "1.0.0",
+    "description": "NodeJS client for Fiken API",
     "repository": {
         "type": "git",
-        "url": "https://github.com/GIT_USER_ID/GIT_REPO_ID.git"
+        "url": "https://github.com/okane-no/fiken-sdk.git"
     },
     "main": "dist/api.js",
     "types": "dist/api.d.ts",
+    "private": false,
     "scripts": {
         "clean": "rm -Rf node_modules/ *.js",
         "build": "tsc",
         "test": "vitest"
     },
     "author": "OpenAPI-Generator Contributors",
-    "license": "Unlicense",
+    "license": "MIT",
     "dependencies": {
         "bluebird": "^3.5.0",
         "openapi-typescript-codegen": "^0.25.0",
