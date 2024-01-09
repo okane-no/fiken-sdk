@@ -92,7 +92,7 @@ export { saleResult } from './models/saleResult';
 export type { sendCreditNoteRequest } from './models/sendCreditNoteRequest';
 export { sendInvoiceishRequest } from './models/sendInvoiceishRequest';
 export type { sendInvoiceRequest } from './models/sendInvoiceRequest';
-export type { string } from './models/string';
+// export type { string } from './models/string';
 export type { toAccount } from './models/toAccount';
 export type { transaction } from './models/transaction';
 export type { updateInvoiceRequest } from './models/updateInvoiceRequest';

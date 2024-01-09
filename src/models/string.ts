@@ -8,4 +8,4 @@
  * Example: January 1st, 1970: "1970-01-01"
  *
  */
-export type string = string;
+// export type string = string;

@@ -1,13 +1,13 @@
 {
     "name": "@okane-no/fiken-sdk",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "NodeJS client for Fiken API",
     "repository": {
         "type": "git",
         "url": "https://github.com/okane-no/fiken-sdk.git"
     },
-    "main": "dist/api.js",
-    "types": "dist/api.d.ts",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "private": false,
     "scripts": {
         "clean": "rm -Rf node_modules/ *.js",

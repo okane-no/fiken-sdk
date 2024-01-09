@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "ES2015",
         "noImplicitAny": false,
         "suppressImplicitAnyIndexErrors": true,
-        "target": "ES5",
+        "target": "ES2015",
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "strict": true,
@@ -13,7 +13,7 @@
         "rootDir": "src",
         "noLib": false,
         "declaration": true,
-        "lib": ["dom", "es6", "es5", "dom.iterable", "scripthost"],
+        "lib": ["dom", "ES2015", "dom.iterable", "scripthost"],
         "outDir": "dist",
         "typeRoots": [
             "node_modules/@types"
