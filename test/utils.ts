@@ -1,18 +1,24 @@
-import { bankAccountResult, contact, creditNoteResult, FikenClient, fullCreditNoteRequest, invoiceishDraftRequest, invoiceishDraftResult, invoiceRequest } from "../src"
+import { bankAccountResult, contact, creditNoteResult, FikenClient, fullCreditNoteRequest, invoiceishDraftRequest, invoiceishDraftResult, invoiceRequest, saleRequest } from "../src"
 import { testContactName } from "./constants"
 
 export class TestUtils {
 
-    static createTestInvoice = async (client: FikenClient, companySlug: string) => {
+    static getBankAccount = async (client: FikenClient, companySlug: string): Promise<bankAccountResult> => {
         let bankAccounts: bankAccountResult[] = await client.bankAccounts.getBankAccounts({ companySlug })
         let bankAccount: bankAccountResult | undefined = bankAccounts.find(bankAccount => bankAccount.inactive === false)
         if (!bankAccount) {
             throw Error('Could not find a active bankAccount')
         }
+
+        return bankAccount
+    }
+
+    static createTestInvoice = async (client: FikenClient, companySlug: string) => {
+        let bankAccount = await this.getBankAccount(client, companySlug)
+
         if (!bankAccount.accountCode) {
             throw Error('bankAccount does not have accountCode')
         }
-
         let customer = await this.getTestCustomer(client, companySlug)
         if (!customer.contactId) {
             throw Error('customer does not have contactId')
@@ -115,6 +121,25 @@ export class TestUtils {
 
         let offerFullUrl = await client.offers.createOfferDraft({ companySlug, requestBody })
         return await client.offers.getOffer({companySlug, offerId: this.parseFullUrl(offerFullUrl)})
+    }
+
+    static createTestSale = async(client: FikenClient, companySlug: string) => {
+        let requestBody: saleRequest = {
+            date: '2024-01-01',
+            currency: 'NOK',
+            kind: saleRequest.kind.EXTERNAL_INVOICE,
+            lines: [{
+                vatType: 'NONE',
+                description: 'TEST',
+                account: '3220',
+                netPrice: 1,
+                vat: 0,
+            }]
+        }
+
+        let saleFullUrl = await client.sales.createSale({companySlug, requestBody})
+        let sale = await client.sales.getSale({companySlug, saleId: Number(this.parseFullUrl(saleFullUrl))})
+        return sale
     }
 }
 
