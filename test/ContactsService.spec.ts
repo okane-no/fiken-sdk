@@ -1,8 +1,7 @@
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
 import {  contact, contactPerson, FikenClient } from '../src/index'
 import 'dotenv/config'
-
-const testContactName = "TEST"
+import { testContactName } from './constants'
 
 const getTestContact = async (client: FikenClient, companySlug: string) => {
 
